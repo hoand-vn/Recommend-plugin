@@ -39,16 +39,17 @@ class RecommendController extends AbstractController
     private $sub_title;
 
     public function __construct()
-    {}
+    {
+    }
 
     /**
-    * おすすめ商品一覧
-    * @param Application $app
-    * @param Request $request
-    * @param unknown $id
-    * @throws NotFoundHttpException
-    * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
-    */
+     * おすすめ商品一覧
+     * @param Application $app
+     * @param Request     $request
+     * @param unknown     $id
+     * @throws NotFoundHttpException
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     */
     public function index(Application $app, Request $request)
     {
         $pagination = null;
@@ -62,14 +63,15 @@ class RecommendController extends AbstractController
     }
 
     /**
-    * おすすめ商品の新規作成
-    * @param Application $app
-    * @param Request $request
-    * @param unknown $id
-    * @throws NotFoundHttpException
-    * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
-    */
-    public function create(Application $app, Request $request, $id) {
+     * おすすめ商品の新規作成
+     * @param Application $app
+     * @param Request     $request
+     * @param unknown     $id
+     * @throws NotFoundHttpException
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     */
+    public function create(Application $app, Request $request, $id)
+    {
 
         $builder = $app['form.factory']->createBuilder('admin_recommend');
         $form = $builder->getForm();
@@ -79,44 +81,45 @@ class RecommendController extends AbstractController
         $Product = null;
 
         if ('POST' === $request->getMethod()) {
-	        $form->handleRequest($request);
+            $form->handleRequest($request);
             $data = $form->getData();
-	        if ($form->isValid()) {
-	            $status = $service->createRecommend($data);
+            if ($form->isValid()) {
+                $status = $service->createRecommend($data);
 
-	            if (!$status) {
-	                $app->addError('admin.recommend.notfound', 'admin');
-	            } else {
-			        $app->addSuccess('admin.plugin.recommend.regist.success', 'admin');
-	            }
+                if (!$status) {
+                    $app->addError('admin.recommend.notfound', 'admin');
+                } else {
+                    $app->addSuccess('admin.plugin.recommend.regist.success', 'admin');
+                }
 
-		        return $app->redirect($app->url('admin_recommend_list'));
-	        }
-            
+                return $app->redirect($app->url('admin_recommend_list'));
+            }
+
             if (!is_null($data['Product'])) {
                 $Product = $data['Product'];
             }
         }
 
         return $this->renderRegistView(
-                    $app, 
-                    array(
-                        'form' => $form->createView(), 
-                        'Product' => $Product
-                     )
-                 );
+            $app,
+            array(
+                'form' => $form->createView(),
+                'Product' => $Product
+            )
+        );
     }
 
     /**
      * 編集
      * @param Application $app
-     * @param Request $request
-     * @param unknown $id
+     * @param Request     $request
+     * @param unknown     $id
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function edit(Application $app, Request $request, $id) {
+    public function edit(Application $app, Request $request, $id)
+    {
 
-        if(is_null($id) || strlen($id) == 0) {
+        if (is_null($id) || strlen($id) == 0) {
             $app->addError("admin.recommend.recommend_id.notexists", "admin");
             return $app->redirect($app->url('admin_recommend_list'));
         }
@@ -131,7 +134,7 @@ class RecommendController extends AbstractController
             return $app->redirect($app->url('admin_recommend_list'));
         }
 
-		$Recommend = $Recommend[0];
+        $Recommend = $Recommend[0];
 
         // formの作成
         $form = $app['form.factory']
@@ -139,45 +142,46 @@ class RecommendController extends AbstractController
             ->getForm();
 
         if ('POST' === $request->getMethod()) {
-	        $form->handleRequest($request);
-	        if ($form->isValid()) {
-	            $status = $service->updateRecommend($form->getData());
+            $form->handleRequest($request);
+            if ($form->isValid()) {
+                $status = $service->updateRecommend($form->getData());
 
-	            if (!$status) {
-	                $app->addError('admin.recommend.notfound', 'admin');
-	            } else {
-			        $app->addSuccess('admin.plugin.recommend.update.success', 'admin');
-	            }
+                if (!$status) {
+                    $app->addError('admin.recommend.notfound', 'admin');
+                } else {
+                    $app->addSuccess('admin.plugin.recommend.update.success', 'admin');
+                }
 
-		        return $app->redirect($app->url('admin_recommend_list'));
-	        }
+                return $app->redirect($app->url('admin_recommend_list'));
+            }
         }
 
         return $this->renderRegistView(
-                    $app, 
-                    array(
-                        'form' => $form->createView(), 
-                        'Product' => $Recommend->getProduct()
-                     )
-                 );
+            $app,
+            array(
+                'form' => $form->createView(),
+                'Product' => $Recommend->getProduct()
+            )
+        );
     }
 
     /**
-    * おすすめ商品の削除
-    * @param Application $app
-    * @param Request $request
-    * @param unknown $id
-    * @throws NotFoundHttpException
-    * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
-    */
-    public function delete(Application $app, Request $request, $id) {
+     * おすすめ商品の削除
+     * @param Application $app
+     * @param Request     $request
+     * @param unknown     $id
+     * @throws NotFoundHttpException
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     */
+    public function delete(Application $app, Request $request, $id)
+    {
 
         $this->isTokenValid($app);
 
         if (!'POST' === $request->getMethod()) {
             throw new HttpException();
         }
-        if(is_null($id) || strlen($id) == 0) {
+        if (is_null($id) || strlen($id) == 0) {
             $app->addError("admin.recommend.recommend_id.notexists", "admin");
             return $app->redirect($app->url('admin_recommend_list'));
         }
@@ -186,9 +190,9 @@ class RecommendController extends AbstractController
         $service = $app['eccube.plugin.recommend.service.recommend'];
 
         // おすすめ商品情報を削除する
-        if($service->deleteRecommend($id)) {
+        if ($service->deleteRecommend($id)) {
             $app->addSuccess('admin.plugin.recommend.delete.success', 'admin');
-        } else{
+        } else {
             $app->addError('admin.recommend.notfound', 'admin');
         }
 
@@ -199,15 +203,16 @@ class RecommendController extends AbstractController
     /**
      * 上へ
      * @param Application $app
-     * @param Request $request
-     * @param unknown $id
+     * @param Request     $request
+     * @param unknown     $id
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function rankUp(Application $app, Request $request, $id) {
+    public function rankUp(Application $app, Request $request, $id)
+    {
 
         $this->isTokenValid($app);
 
-        if(is_null($id) || strlen($id) == 0) {
+        if (is_null($id) || strlen($id) == 0) {
             $app->addError("admin.recommend.recommend_id.notexists", "admin");
             return $app->redirect($app->url('admin_recommend_list'));
         }
@@ -232,15 +237,16 @@ class RecommendController extends AbstractController
     /**
      * 下へ
      * @param Application $app
-     * @param Request $request
-     * @param unknown $id
+     * @param Request     $request
+     * @param unknown     $id
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function rankDown(Application $app, Request $request, $id) {
+    public function rankDown(Application $app, Request $request, $id)
+    {
 
         $this->isTokenValid($app);
 
-        if(is_null($id) || strlen($id) == 0) {
+        if (is_null($id) || strlen($id) == 0) {
             $app->addError("admin.recommend.recommend_id.notexists", "admin");
             return $app->redirect($app->url('admin_recommend_list'));
         }
@@ -261,19 +267,20 @@ class RecommendController extends AbstractController
 
         return $app->redirect($app->url('admin_recommend_list'));
     }
-    
+
     /**
      * 編集画面用のrender
      * @param unknown $app
      * @param unknown $parameters
      */
-    protected function renderRegistView($app, $parameters = array()) {
+    protected function renderRegistView($app, $parameters = array())
+    {
         // 商品検索フォーム
         $searchProductModalForm = $app['form.factory']->createBuilder('admin_search_product')->getForm();
         $viewParameters = array(
             'searchProductModalForm' => $searchProductModalForm->createView(),
         );
-        $viewParameters+= $parameters;
+        $viewParameters += $parameters;
         return $app->render('Recommend/Resource/template/admin/regist.twig', $viewParameters);
     }
 

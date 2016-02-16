@@ -33,15 +33,6 @@ use Symfony\Component\Filesystem\Filesystem;
 
 class PluginManager extends AbstractPluginManager
 {
-    /**
-     * @var string コピー元リソースディレクトリ
-     */
-    private $origin;
-
-    /**
-     * @var string コピー先リソースディレクトリ
-     */
-    private $target;
 
     /**
      * @var string コピー元ブロックファイル
@@ -60,10 +51,6 @@ class PluginManager extends AbstractPluginManager
 
     public function __construct()
     {
-        // コピー元のディレクトリ
-        $this->origin = __DIR__ . '/Resource/assets';
-        // コピー先のディレクトリ
-        $this->target = __DIR__ . '/../../../html/plugin/recommend';
         // コピー元ブロックファイル
         $this->originBlock = __DIR__ . '/Resource/template/Block/' . $this->blockFileName . '.twig';
     }
@@ -72,17 +59,12 @@ class PluginManager extends AbstractPluginManager
     {
         $this->migrationSchema($app, __DIR__ . '/Resource/doctrine/migration', $config['code']);
 
-        // リソースファイルのコピー
-        $this->copyAssets();
     }
 
     public function uninstall($config, $app)
     {
         // ブロックの削除
         $this->removeBlock($app);
-
-        // リソースファイルの削除
-        $this->removeAssets();
 
         $this->migrationSchema($app, __DIR__ . '/Resource/doctrine/migration', $config['code'], 0);
     }
@@ -102,24 +84,6 @@ class PluginManager extends AbstractPluginManager
     public function update($config, $app)
     {
 
-    }
-
-    /**
-     * 画像ファイル等をコピー
-     */
-    private function copyAssets()
-    {
-        $file = new Filesystem();
-        $file->mirror($this->origin, $this->target . '/assets');
-    }
-
-    /**
-     * コピーした画像ファイルなどを削除
-     */
-    private function removeAssets()
-    {
-        $file = new Filesystem();
-        $file->remove($this->target);
     }
 
     /**

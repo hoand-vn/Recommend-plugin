@@ -24,6 +24,7 @@
 namespace Plugin\Recommend\Controller\Block;
 
 use Eccube\Application;
+use Eccube\Entity\Master\Disp;
 
 class RecommendController
 {
@@ -32,7 +33,9 @@ class RecommendController
      */
     public function index(Application $app)
     {
-        $RecommendProducts = $app['eccube.plugin.recommend.repository.recommend_product']->findAll();
+        $Disp = $app['eccube.repository.master.disp']->find(Disp::DISPLAY_SHOW);
+        $RecommendProducts = $app['eccube.plugin.recommend.repository.recommend_product']->getRecommendProduct($Disp);
+
         return $app['view']->render('Block/recommend_product_block.twig', array(
             'RecommendProducts' => $RecommendProducts,
         ));

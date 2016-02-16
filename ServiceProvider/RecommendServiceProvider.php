@@ -30,35 +30,6 @@ use Symfony\Component\Yaml\Yaml;
 class RecommendServiceProvider implements ServiceProviderInterface
 {
 
-    /**
-     * ナビに新しい項目を追加します.
-     * @param array $nav ナビの配列参照
-     * @param array $addNavi 追加するナビ配列
-     * @param array $ids 追加するナビのid配列
-     * @return bool
-     */
-    private static function addNavi(array &$nav, array $addNavi, array $ids = array())
-    {
-        $targetId = array_shift($ids);
-        if (!$targetId) {
-            // IDが無ければトップレベルの最後に追加
-            $nav[] = $addNavi;
-        }
-
-        foreach ($nav as $key => $val) {
-            if (strcmp($targetId, $val["id"]) == 0) {
-                if (count($ids) > 0) {
-                    return self::addNavi($nav[$key]['child'], $addNavi, $ids);
-                }
-                // 最後に追加
-                $nav[$key]['child'][] = $addNavi;
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     public function register(BaseApplication $app)
     {
         // おすすめ情報テーブルリポジトリ
@@ -135,12 +106,16 @@ class RecommendServiceProvider implements ServiceProviderInterface
 
         // メニュー登録
         $app['config'] = $app->share($app->extend('config', function ($config) {
-            $addNavi['id'] = "admin_recommend";
-            $addNavi['name'] = "おすすめ商品";
-            $addNavi['url'] = "admin_recommend_list";
-
-            self::addNavi($config['nav'], $addNavi, array('content'));
-
+            $addNavi['id'] = 'admin_recommend';
+            $addNavi['name'] = 'おすすめ管理';
+            $addNavi['url'] = 'admin_recommend_list';
+            $nav = $config['nav'];
+            foreach ($nav as $key => $val) {
+                if ('content' == $val['id']) {
+                    $nav[$key]['child'][] = $addNavi;
+                }
+            }
+            $config['nav'] = $nav;
             return $config;
         }));
     }
