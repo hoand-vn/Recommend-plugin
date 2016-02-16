@@ -38,12 +38,13 @@ class RecommendSearchModelController
     private $sub_title;
 
     public function __construct()
-    {}
+    {
+    }
 
     /**
      * 商品検索画面を表示する
      * @param Application $app
-     * @param Request $request
+     * @param Request     $request
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function searchProduct(Application $app, Request $request)
@@ -65,7 +66,7 @@ class RecommendSearchModelController
 
             // 除外するproduct_idを設定する
             $existProductId = $request->get('exist_product_id');
-            if(strlen($existProductId > 0)) {
+            if (strlen($existProductId > 0)) {
                 $qb->andWhere($qb->expr()->notin('p.id', ':existProductId'))
                     ->setParameter('existProductId', explode(",", $existProductId));
             }

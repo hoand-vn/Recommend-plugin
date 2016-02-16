@@ -29,6 +29,7 @@ use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\Id\SequenceGenerator;
 use Eccube\Common\Constant;
+use Eccube\Entity\Master\Disp;
 
 /**
  * RecommendProductRepository
@@ -76,7 +77,7 @@ class RecommendProductRepository extends EntityRepository
                     'rank' => $rank,
                 ))
                 ->getSingleResult();
-                
+
             return $product;
         } catch (NoResultException $e) {
             throw new NotFoundHttpException();
@@ -103,7 +104,7 @@ class RecommendProductRepository extends EntityRepository
                     'rank' => $rank,
                 ))
                 ->getSingleResult();
-                
+
             return $product;
         } catch (NoResultException $e) {
             throw new NotFoundHttpException();
@@ -122,5 +123,20 @@ class RecommendProductRepository extends EntityRepository
         $q = $this->getEntityManager()->createQuery($dql);
 
         return $q->getSingleScalarResult();
+    }
+
+
+    public function getRecommendProduct(Disp $Disp)
+    {
+
+        $query = $this->createQueryBuilder('rp')
+            ->innerJoin('Eccube\Entity\Product', 'p', 'WITH', 'p.id = rp.Product')
+            ->where('p.Status = :Disp')
+            ->orderBy('rp.rank', 'DESC')
+            ->setParameter('Disp', $Disp)
+            ->getQuery();
+
+        return $query->getResult();
+
     }
 }
