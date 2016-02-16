@@ -25,6 +25,8 @@ namespace Plugin\Recommend\Form\Type;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormError;
+use Symfony\Component\Form\FormEvent;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Form\FormEvents;
@@ -44,12 +46,12 @@ class RecommendProductType extends AbstractType
      * Build config type form
      *
      * @param FormBuilderInterface $builder
-     * @param array $options
+     * @param array                $options
      * @return type
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $config = $this->app['config'];
+        $app = $this->app;
 
         $builder
             ->add('id', 'text', array(
@@ -71,10 +73,28 @@ class RecommendProductType extends AbstractType
                 ->addModelTransformer(new DataTransformer\EntityToIdTransformer(
                     $this->app['orm.em'],
                     '\Eccube\Entity\Product'
-            )));
+                )));
 
         $builder
-            ->addEventSubscriber(new \Eccube\Event\FormEventSubscriber());
+            ->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) use($app) {
+                $form = $event->getForm();
+                $data = $form->getData();
+
+                $Product = $data['Product'];
+
+                if (empty($Product)) {
+                    $form['comment']->addError(new FormError('商品を追加してください。'));
+                } else {
+                    $RecommendProduct = $app['eccube.plugin.recommend.repository.recommend_product']->findBy(array('Product' => $Product));
+
+                    if ($RecommendProduct) {
+                        $form['comment']->addError(new FormError('既に商品が追加されています。'));
+                    }
+                }
+
+            });
+
+        $builder->addEventSubscriber(new \Eccube\Event\FormEventSubscriber());
     }
 
     /**
