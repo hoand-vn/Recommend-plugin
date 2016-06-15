@@ -88,7 +88,7 @@ class RecommendProductType extends AbstractType
                     $RecommendProduct = $app['eccube.plugin.recommend.repository.recommend_product']->findBy(array('Product' => $Product));
 
                     if ($RecommendProduct) {
-                        if (!isset($data['id']) || ($RecommendProduct[0]->getId() != $data['id'])) {//NOT update
+                        if (($RecommendProduct[0]->getId() != $data['id'])) {//NOT self check
                             $form['comment']->addError(new FormError('既に商品が追加されています。'));
                         }
                     }
